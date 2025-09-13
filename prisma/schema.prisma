@@ -1,0 +1,1554 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model accessappversion {
+  ID                        Int      @id @default(autoincrement())
+  version                   Float
+  minimumRequiredAppVersion Float
+  description               String?
+  createdAt                 DateTime @default(now())
+}
+
+model acthiddenwork {
+  ID                      Int                     @id @default(autoincrement())
+  actTitle                String?
+  actHiddenWorksNo        Int?
+  actHiddenWorksDate      DateTime?
+  actHiddenWorksAddress   String?
+  actHiddenWorksCity      String?
+  actHiddenWorksTask      String?                 @db.VarChar(256)
+  actHiddenWorksPlace     String?                 @db.VarChar(256)
+  actCompanyCompleted     String?
+  actHiddenWorksTitle     String?                 @db.VarChar(256)
+  actHiddenWorksLayouts   String?                 @db.VarChar(400)
+  actHiddenWorksMaterials String?                 @db.VarChar(256)
+  actHiddenWorksStarted   DateTime?
+  actHiddenWorksFinished  DateTime?
+  actHideenWorksDecision  String?                 @db.VarChar(256)
+  docOrderID              Int?
+  docProjectID            Int
+  docorder                docorder?               @relation(fields: [docOrderID], references: [ID])
+  docproject              docproject              @relation(fields: [docProjectID], references: [ID])
+  acthiddenworkdelegate   acthiddenworkdelegate[]
+
+  @@index([docOrderID], map: "acthiddenwork_docOrderID_fkey")
+  @@index([docProjectID], map: "acthiddenwork_docProjectID_fkey")
+}
+
+model acthiddenworkdelegate {
+  ID              Int           @id @default(autoincrement())
+  actHiddenWorkID Int
+  userID          Int
+  acthiddenwork   acthiddenwork @relation(fields: [actHiddenWorkID], references: [ID])
+  user            user          @relation(fields: [userID], references: [ID])
+
+  @@index([actHiddenWorkID], map: "acthiddenworkdelegate_actHiddenWorkID_fkey")
+  @@index([userID], map: "acthiddenworkdelegate_userID_fkey")
+}
+
+model assemblylog {
+  ID                               Int                   @id @default(autoincrement())
+  userID                           Int
+  projectTaskID                    Int
+  docOrderLayoutTaskID             Int?
+  decommissionedHours              Float
+  actualHours                      Float
+  comment                          String?
+  assemblyLogTaskStatusID          Int
+  createdAt                        DateTime              @default(now())
+  createdBy                        Int
+  updatedAt                        DateTime?
+  updatedBy                        Int?
+  accessTaskID                     Int?
+  alogDate                         DateTime
+  isOvertimeHours                  Boolean               @default(false)
+  assemblylogtaskstatus            assemblylogtaskstatus @relation(fields: [assemblyLogTaskStatusID], references: [ID])
+  user_assemblylog_createdByTouser user                  @relation("assemblylog_createdByTouser", fields: [createdBy], references: [ID])
+  docorderlayouttask               docorderlayouttask?   @relation(fields: [docOrderLayoutTaskID], references: [ID])
+  projecttask                      projecttask           @relation(fields: [projectTaskID], references: [ID])
+  user_assemblylog_updatedByTouser user?                 @relation("assemblylog_updatedByTouser", fields: [updatedBy], references: [ID])
+  user_assemblylog_userIDTouser    user                  @relation("assemblylog_userIDTouser", fields: [userID], references: [ID])
+
+  @@index([assemblyLogTaskStatusID], map: "assemblylog_assemblyLogTaskStatusID_fkey")
+  @@index([createdBy], map: "assemblylog_createdBy_fkey")
+  @@index([docOrderLayoutTaskID], map: "assemblylog_docOrderLayoutTaskID_fkey")
+  @@index([projectTaskID], map: "assemblylog_projectTaskID_fkey")
+  @@index([updatedBy], map: "assemblylog_updatedBy_fkey")
+  @@index([userID], map: "assemblylog_userID_fkey")
+}
+
+model assemblylogcalendar {
+  ID           Int      @id @default(autoincrement())
+  alogDate     DateTime @default(now())
+  isWorking    Boolean? @default(false)
+  isHoliday    Boolean? @default(false)
+  workingHours Int?     @default(0)
+  createdBy    Int
+  createdAt    DateTime @default(now())
+  comment      String?
+  user         user     @relation(fields: [createdBy], references: [ID])
+
+  @@index([createdBy], map: "assemblylogcalendar_createdBy_fkey")
+}
+
+model assemblyloglikeaccess {
+  IDassembly                                      Int                    @id @default(autoincrement())
+  assemblyEmployee                                String
+  assemblyProject                                 String
+  assemblySubproject                              String
+  assemblyCategory                                String
+  assemblySubcategory                             String?
+  assemblyTask                                    String
+  assemblyType                                    String
+  assemblyDate                                    DateTime
+  assemblyHour                                    Float
+  assemblyStatus                                  String
+  assemblyComment                                 String?
+  assemblyDetalization                            String?
+  assemblyActualhour                              Float
+  assemblyRecordcreated                           DateTime               @default(now())
+  assemblyRecordowner                             String
+  odbcEmployeeID                                  Int
+  odbcProjectTaskID                               Int
+  odbcCreatedBy                                   Int
+  docOrderLayoutTaskID                            Int?
+  mysqlID                                         Int?
+  assemblyTypeID                                  Int?
+  assemblyStatusID                                Int?
+  assemblyUID                                     Float?
+  assemblylogtaskstatus                           assemblylogtaskstatus? @relation(fields: [assemblyStatusID], references: [ID])
+  taskworktype                                    taskworktype?          @relation(fields: [assemblyTypeID], references: [ID])
+  docorderlayouttask                              docorderlayouttask?    @relation(fields: [docOrderLayoutTaskID], references: [ID])
+  user_assemblyloglikeaccess_odbcCreatedByTouser  user                   @relation("assemblyloglikeaccess_odbcCreatedByTouser", fields: [odbcCreatedBy], references: [ID])
+  user_assemblyloglikeaccess_odbcEmployeeIDTouser user                   @relation("assemblyloglikeaccess_odbcEmployeeIDTouser", fields: [odbcEmployeeID], references: [ID])
+  projecttask                                     projecttask            @relation(fields: [odbcProjectTaskID], references: [ID])
+
+  @@index([assemblyStatusID], map: "assemblyloglikeaccess_assemblyStatusID_fkey")
+  @@index([assemblyTypeID], map: "assemblyloglikeaccess_assemblyTypeID_fkey")
+  @@index([docOrderLayoutTaskID], map: "assemblyloglikeaccess_docOrderLayoutTaskID_fkey")
+  @@index([odbcCreatedBy], map: "assemblyloglikeaccess_odbcCreatedBy_fkey")
+  @@index([odbcEmployeeID], map: "assemblyloglikeaccess_odbcEmployeeID_fkey")
+  @@index([odbcProjectTaskID], map: "assemblyloglikeaccess_odbcProjectTaskID_fkey")
+}
+
+model assemblylogtaskstatus {
+  ID                     Int                      @id @default(autoincrement())
+  title                  String
+  description            String?
+  assemblylog            assemblylog[]
+  assemblyloglikeaccess  assemblyloglikeaccess[]
+  docprojectlayoutchange docprojectlayoutchange[]
+}
+
+model company {
+  ID    Int    @id @default(autoincrement())
+  title String
+  user  user[]
+}
+
+model docmaterialmeasure {
+  ID                     Int                      @id @default(autoincrement())
+  title                  String
+  add                    String?
+  docorderlayoutmaterial docorderlayoutmaterial[]
+}
+
+model docmaterialtype {
+  ID                     Int                      @id @default(autoincrement())
+  title                  String
+  isActive               Boolean                  @default(true)
+  add                    Int                      @default(0)
+  toWriteOff             Boolean                  @default(true)
+  toPrepareOrder         Boolean                  @default(false)
+  docorderlayoutmaterial docorderlayoutmaterial[]
+}
+
+model docorder {
+  ID                                  Int              @id @default(autoincrement())
+  docProjectID                        Int
+  workshopOrderID                     Int              @unique(map: "DocOrder_workshopOrderID_key")
+  mainOrder                           Boolean?         @default(false)
+  createdAt                           DateTime         @default(now())
+  createdBy                           Int
+  updatedAt                           DateTime?
+  updatedBy                           Int?
+  hasWeldLog                          Boolean?         @default(true)
+  finishedWeldLog                     Boolean?         @default(false)
+  controllerVikID                     Int?
+  temperatureWeld                     Int?             @default(20)
+  weldCode                            String?
+  percentRK                           Float?
+  comment                             String?
+  acthiddenwork                       acthiddenwork[]
+  user_docorder_createdByTouser       user             @relation("docorder_createdByTouser", fields: [createdBy], references: [ID], map: "DocOrder_createdBy_fkey")
+  docproject                          docproject       @relation(fields: [docProjectID], references: [ID], map: "DocOrder_docProjectID_fkey")
+  user_docorder_updatedByTouser       user?            @relation("docorder_updatedByTouser", fields: [updatedBy], references: [ID], map: "DocOrder_updatedBy_fkey")
+  workshoporder                       workshoporder    @relation(fields: [workshopOrderID], references: [ID], map: "DocOrder_workshopOrderID_fkey")
+  user_docorder_controllerVikIDTouser user?            @relation("docorder_controllerVikIDTouser", fields: [controllerVikID], references: [ID])
+  docorderlayout                      docorderlayout[]
+  docorderwelder                      docorderwelder[]
+  weldingactrk                        weldingactrk[]
+  weldingactvik                       weldingactvik[]
+
+  @@unique([docProjectID, workshopOrderID], map: "DocOrder_docProjectID_workshopOrderID_key")
+  @@index([createdBy], map: "DocOrder_createdBy_fkey")
+  @@index([updatedBy], map: "DocOrder_updatedBy_fkey")
+  @@index([controllerVikID], map: "docorder_controllerVikID_fkey")
+}
+
+model docorderlayout {
+  ID                                  Int                      @id @default(autoincrement())
+  docProjectLayoutID                  Int
+  docOrderID                          Int
+  isPtdReady                          Boolean                  @default(false)
+  ptdDateReady                        DateTime?
+  ptdUserID                           Int?
+  comments                            String?
+  toPrint                             Boolean                  @default(true)
+  weldingMaterialID                   Int?
+  weldingActVikID                     Int?
+  createdAt                           DateTime                 @default(now())
+  createdBy                           Int
+  updatedAt                           DateTime?
+  updatedBy                           Int?
+  percentRK                           Float?
+  statusID                            Int?
+  docProjectLayoutChangeID            Int?
+  toRouteTaskDispatcher               Boolean?                 @default(true)
+  layoutNoInErp                       Int?
+  user_docorderlayout_createdByTouser user                     @relation("docorderlayout_createdByTouser", fields: [createdBy], references: [ID], map: "DocOrderLayout_createdBy_fkey")
+  docorder                            docorder                 @relation(fields: [docOrderID], references: [ID], map: "DocOrderLayout_docOrderID_fkey")
+  docprojectlayout                    docprojectlayout         @relation(fields: [docProjectLayoutID], references: [ID], map: "DocOrderLayout_docProjectLayoutID_fkey")
+  user_docorderlayout_ptdUserIDTouser user?                    @relation("docorderlayout_ptdUserIDTouser", fields: [ptdUserID], references: [ID], map: "DocOrderLayout_ptdUserID_fkey")
+  user_docorderlayout_updatedByTouser user?                    @relation("docorderlayout_updatedByTouser", fields: [updatedBy], references: [ID], map: "DocOrderLayout_updatedBy_fkey")
+  weldingactvik                       weldingactvik?           @relation(fields: [weldingActVikID], references: [ID], map: "DocOrderLayout_weldingActVikID_fkey")
+  weldingmaterial                     weldingmaterial?         @relation(fields: [weldingMaterialID], references: [ID], map: "DocOrderLayout_weldingMaterialID_fkey")
+  docprojectlayoutchange              docprojectlayoutchange?  @relation(fields: [docProjectLayoutChangeID], references: [ID])
+  docorderlayoutstatus                docorderlayoutstatus?    @relation(fields: [statusID], references: [ID])
+  docorderlayoutmaterial              docorderlayoutmaterial[]
+  docorderlayouttask                  docorderlayouttask[]
+  weld                                weld[]
+
+  @@index([createdBy], map: "DocOrderLayout_createdBy_fkey")
+  @@index([docOrderID], map: "DocOrderLayout_docOrderID_fkey")
+  @@index([docProjectLayoutID], map: "DocOrderLayout_docProjectLayoutID_fkey")
+  @@index([ptdUserID], map: "DocOrderLayout_ptdUserID_fkey")
+  @@index([updatedBy], map: "DocOrderLayout_updatedBy_fkey")
+  @@index([weldingActVikID], map: "DocOrderLayout_weldingActVikID_fkey")
+  @@index([weldingMaterialID], map: "DocOrderLayout_weldingMaterialID_fkey")
+  @@index([docProjectLayoutChangeID], map: "docorderlayout_docProjectLayoutChangeID_fkey")
+  @@index([statusID], map: "docorderlayout_statusID_fkey")
+}
+
+model docorderlayoutaddparam {
+  ID                         Int                          @id @default(autoincrement())
+  paramTitle                 String
+  initialValue               String?
+  docorderlayouttask         docorderlayouttask[]
+  docorderlayouttaskdetail   docorderlayouttaskdetail[]
+  docorderlayouttasktemplate docorderlayouttasktemplate[]
+}
+
+model docorderlayoutmaterial {
+  ID                                                            Int                 @id @default(autoincrement())
+  docOrderLayoutID                                              Int
+  matNo                                                         Float
+  matTitle                                                      String              @db.VarChar(400)
+  matAdditionalTitle                                            String?             @db.VarChar(400)
+  matCarving                                                    String?
+  matLength                                                     Float?
+  matQuantity                                                   Int
+  matErpNo                                                      String?
+  matNewErpNo                                                   String?
+  matComment                                                    String?
+  isDisabled                                                    Boolean             @default(false)
+  isWrittenOff                                                  Boolean             @default(false)
+  isRemains                                                     Boolean             @default(false)
+  isWrittenOffRemains                                           Boolean             @default(false)
+  docMaterialTypeID                                             Int
+  docMaterialMeasureID                                          Int
+  createdAt                                                     DateTime            @default(now())
+  createdBy                                                     Int
+  updatedAt                                                     DateTime?
+  updatedBy                                                     Int?
+  confirmIssueForProduction                                     Boolean             @default(false)
+  confirmIssueForProductionAt                                   DateTime?
+  confirmIssueForProductionBy                                   Int?
+  issuedForProduction                                           Boolean             @default(false)
+  issuedForProductionAt                                         DateTime?
+  issuedForProductionBy                                         Int?
+  listedInErpCompany                                            Boolean?            @default(false)
+  subcontractorOrderID                                          Int?
+  user_docorderlayoutmaterial_createdByTouser                   user                @relation("docorderlayoutmaterial_createdByTouser", fields: [createdBy], references: [ID], map: "DocOrderLayoutMaterial_createdBy_fkey")
+  docmaterialmeasure                                            docmaterialmeasure  @relation(fields: [docMaterialMeasureID], references: [ID], map: "DocOrderLayoutMaterial_docMaterialMeasureID_fkey")
+  docmaterialtype                                               docmaterialtype     @relation(fields: [docMaterialTypeID], references: [ID], map: "DocOrderLayoutMaterial_docMaterialTypeID_fkey")
+  docorderlayout                                                docorderlayout      @relation(fields: [docOrderLayoutID], references: [ID], map: "DocOrderLayoutMaterial_docOrderLayoutID_fkey")
+  user_docorderlayoutmaterial_updatedByTouser                   user?               @relation("docorderlayoutmaterial_updatedByTouser", fields: [updatedBy], references: [ID], map: "DocOrderLayoutMaterial_updatedBy_fkey")
+  user_docorderlayoutmaterial_confirmIssueForProductionByTouser user?               @relation("docorderlayoutmaterial_confirmIssueForProductionByTouser", fields: [confirmIssueForProductionBy], references: [ID])
+  user_docorderlayoutmaterial_issuedForProductionByTouser       user?               @relation("docorderlayoutmaterial_issuedForProductionByTouser", fields: [issuedForProductionBy], references: [ID])
+  subcontractororder                                            subcontractororder? @relation(fields: [subcontractorOrderID], references: [ID])
+  weld_weld_firstDetailIDTodocorderlayoutmaterial               weld[]              @relation("weld_firstDetailIDTodocorderlayoutmaterial")
+  weld_weld_secondDetailIDTodocorderlayoutmaterial              weld[]              @relation("weld_secondDetailIDTodocorderlayoutmaterial")
+
+  @@index([createdBy], map: "DocOrderLayoutMaterial_createdBy_fkey")
+  @@index([docMaterialMeasureID], map: "DocOrderLayoutMaterial_docMaterialMeasureID_fkey")
+  @@index([docMaterialTypeID], map: "DocOrderLayoutMaterial_docMaterialTypeID_fkey")
+  @@index([docOrderLayoutID], map: "DocOrderLayoutMaterial_docOrderLayoutID_fkey")
+  @@index([updatedBy], map: "DocOrderLayoutMaterial_updatedBy_fkey")
+  @@index([confirmIssueForProductionBy], map: "docorderlayoutmaterial_confirmIssueForProductionBy_fkey")
+  @@index([issuedForProductionBy], map: "docorderlayoutmaterial_issuedForProductionBy_fkey")
+  @@index([subcontractorOrderID], map: "docorderlayoutmaterial_subcontractorOrderID_fkey")
+}
+
+model docorderlayoutstatus {
+  ID             Int              @id @default(autoincrement())
+  title          String
+  isActive       Boolean          @default(true)
+  docorderlayout docorderlayout[]
+}
+
+model docorderlayouttask {
+  ID                                             Int                        @id @default(autoincrement())
+  docOrderLayoutID                               Int
+  projectTaskID                                  Int
+  percentFromMainTask                            Float                      @default(0)
+  createdAt                                      DateTime                   @default(now())
+  createdBy                                      Int
+  updatedAt                                      DateTime?
+  updatedBy                                      Int?
+  additionalTask                                 String?
+  isFinished                                     Boolean                    @default(false)
+  isEnabled                                      Boolean                    @default(true)
+  addParamValue                                  String?
+  docOrderLayoutAddParamID                       Int?
+  isControl                                      Boolean?                   @default(false)
+  sort                                           Int?
+  finishedBy                                     Int?
+  finishedAt                                     DateTime?
+  parentTaskID                                   Int?
+  appointAt                                      DateTime?
+  appointBy                                      Int?
+  appointFor                                     Int?
+  toAppoint                                      Boolean?                   @default(false)
+  isFinishedPartly                               Boolean?                   @default(false)
+  finishedPartlyAt                               DateTime?
+  finishedPartlyBy                               Int?
+  assemblylog                                    assemblylog[]
+  assemblyloglikeaccess                          assemblyloglikeaccess[]
+  user_docorderlayouttask_createdByTouser        user                       @relation("docorderlayouttask_createdByTouser", fields: [createdBy], references: [ID], map: "DocOrderLayoutTask_createdBy_fkey")
+  docorderlayout                                 docorderlayout             @relation(fields: [docOrderLayoutID], references: [ID], map: "DocOrderLayoutTask_docOrderLayoutID_fkey")
+  projecttask                                    projecttask                @relation(fields: [projectTaskID], references: [ID], map: "DocOrderLayoutTask_projectTaskID_fkey")
+  user_docorderlayouttask_updatedByTouser        user?                      @relation("docorderlayouttask_updatedByTouser", fields: [updatedBy], references: [ID], map: "DocOrderLayoutTask_updatedBy_fkey")
+  user_docorderlayouttask_appointByTouser        user?                      @relation("docorderlayouttask_appointByTouser", fields: [appointBy], references: [ID])
+  user_docorderlayouttask_appointForTouser       user?                      @relation("docorderlayouttask_appointForTouser", fields: [appointFor], references: [ID])
+  docorderlayoutaddparam                         docorderlayoutaddparam?    @relation(fields: [docOrderLayoutAddParamID], references: [ID])
+  user_docorderlayouttask_finishedByTouser       user?                      @relation("docorderlayouttask_finishedByTouser", fields: [finishedBy], references: [ID])
+  user_docorderlayouttask_finishedPartlyByTouser user?                      @relation("docorderlayouttask_finishedPartlyByTouser", fields: [finishedPartlyBy], references: [ID])
+  docorderlayouttask                             docorderlayouttask?        @relation("docorderlayouttaskTodocorderlayouttask", fields: [parentTaskID], references: [ID])
+  other_docorderlayouttask                       docorderlayouttask[]       @relation("docorderlayouttaskTodocorderlayouttask")
+  docorderlayouttaskdetail                       docorderlayouttaskdetail[]
+  routetaskclaim                                 routetaskclaim[]
+  weekschedule_v1                                weekschedule_v1[]
+
+  @@unique([docOrderLayoutID, projectTaskID, additionalTask], map: "DocOrderLayoutTask_docOrderLayoutID_projectTaskID_additional_key")
+  @@index([createdBy], map: "DocOrderLayoutTask_createdBy_fkey")
+  @@index([projectTaskID], map: "DocOrderLayoutTask_projectTaskID_fkey")
+  @@index([updatedBy], map: "DocOrderLayoutTask_updatedBy_fkey")
+  @@index([appointBy], map: "docorderlayouttask_appointBy_fkey")
+  @@index([appointFor], map: "docorderlayouttask_appointFor_fkey")
+  @@index([docOrderLayoutAddParamID], map: "docorderlayouttask_docOrderLayoutAddParamID_fkey")
+  @@index([finishedBy], map: "docorderlayouttask_finishedBy_fkey")
+  @@index([finishedPartlyBy], map: "docorderlayouttask_finishedPartlyBy_fkey")
+  @@index([parentTaskID], map: "docorderlayouttask_parentTaskID_fkey")
+}
+
+model docorderlayouttaskdetail {
+  ID                                                      Int                        @id @default(autoincrement())
+  docOrderLayoutTaskID                                    Int
+  sortOrder                                               Int
+  taskTitle                                               String                     @db.VarChar(255)
+  isFinished                                              Boolean                    @default(false)
+  isEnabled                                               Boolean                    @default(true)
+  addParamValue                                           String?
+  docOrderLayoutAddParamID                                Int?
+  isControl                                               Boolean?                   @default(false)
+  finishedBy                                              Int?
+  finishedAt                                              DateTime?
+  createdBy                                               Int
+  createdAt                                               DateTime                   @default(now())
+  timeInMinutes                                           Float                      @default(0)
+  parentTaskID                                            Int?
+  quantity                                                Float?
+  whoFinishedTask                                         Int?
+  appointBy                                               Int?
+  toAppoint                                               Boolean?                   @default(false)
+  finishedForDate                                         DateTime?
+  finishedForEmployee                                     Int?
+  user_docorderlayouttaskdetail_appointByTouser           user?                      @relation("docorderlayouttaskdetail_appointByTouser", fields: [appointBy], references: [ID])
+  user_docorderlayouttaskdetail_createdByTouser           user                       @relation("docorderlayouttaskdetail_createdByTouser", fields: [createdBy], references: [ID])
+  docorderlayoutaddparam                                  docorderlayoutaddparam?    @relation(fields: [docOrderLayoutAddParamID], references: [ID])
+  docorderlayouttask                                      docorderlayouttask         @relation(fields: [docOrderLayoutTaskID], references: [ID])
+  user_docorderlayouttaskdetail_finishedByTouser          user?                      @relation("docorderlayouttaskdetail_finishedByTouser", fields: [finishedBy], references: [ID])
+  user_docorderlayouttaskdetail_finishedForEmployeeTouser user?                      @relation("docorderlayouttaskdetail_finishedForEmployeeTouser", fields: [finishedForEmployee], references: [ID])
+  docorderlayouttaskdetail                                docorderlayouttaskdetail?  @relation("docorderlayouttaskdetailTodocorderlayouttaskdetail", fields: [parentTaskID], references: [ID])
+  other_docorderlayouttaskdetail                          docorderlayouttaskdetail[] @relation("docorderlayouttaskdetailTodocorderlayouttaskdetail")
+  user_docorderlayouttaskdetail_whoFinishedTaskTouser     user?                      @relation("docorderlayouttaskdetail_whoFinishedTaskTouser", fields: [whoFinishedTask], references: [ID])
+
+  @@index([appointBy], map: "docorderlayouttaskdetail_appointBy_fkey")
+  @@index([createdBy], map: "docorderlayouttaskdetail_createdBy_fkey")
+  @@index([docOrderLayoutAddParamID], map: "docorderlayouttaskdetail_docOrderLayoutAddParamID_fkey")
+  @@index([docOrderLayoutTaskID], map: "docorderlayouttaskdetail_docOrderLayoutTaskID_fkey")
+  @@index([finishedBy], map: "docorderlayouttaskdetail_finishedBy_fkey")
+  @@index([finishedForEmployee], map: "docorderlayouttaskdetail_finishedForEmployee_fkey")
+  @@index([parentTaskID], map: "docorderlayouttaskdetail_parentTaskID_fkey")
+  @@index([whoFinishedTask], map: "docorderlayouttaskdetail_whoFinishedTask_fkey")
+}
+
+model docorderlayouttasktemplate {
+  ID                       Int                     @id @default(autoincrement())
+  title                    String
+  percentFromMainTask      Float                   @default(0)
+  addParamValue            String?
+  docOrderLayoutAddParamID Int?
+  isControl                Boolean?                @default(false)
+  isActive                 Boolean?                @default(true)
+  docorderlayoutaddparam   docorderlayoutaddparam? @relation(fields: [docOrderLayoutAddParamID], references: [ID])
+
+  @@index([docOrderLayoutAddParamID], map: "docorderlayouttasktemplate_docOrderLayoutAddParamID_fkey")
+}
+
+model docorderwelder {
+  ID                                      Int      @id @default(autoincrement())
+  docOrderID                              Int
+  welderID                                Int
+  welderToLogID                           Int?
+  docorder                                docorder @relation(fields: [docOrderID], references: [ID])
+  user_docorderwelder_welderIDTouser      user     @relation("docorderwelder_welderIDTouser", fields: [welderID], references: [ID])
+  user_docorderwelder_welderToLogIDTouser user?    @relation("docorderwelder_welderToLogIDTouser", fields: [welderToLogID], references: [ID])
+
+  @@index([docOrderID], map: "docorderwelder_docOrderID_fkey")
+  @@index([welderID], map: "docorderwelder_welderID_fkey")
+  @@index([welderToLogID], map: "docorderwelder_welderToLogID_fkey")
+}
+
+model docpaintthickness {
+  ID                                                                        Int                @id @default(autoincrement())
+  thickness                                                                 Int
+  docprojectlayout_docprojectlayout_docEnamelThicknessIDTodocpaintthickness docprojectlayout[] @relation("docprojectlayout_docEnamelThicknessIDTodocpaintthickness")
+  docprojectlayout_docprojectlayout_docPrimerThicknessIDTodocpaintthickness docprojectlayout[] @relation("docprojectlayout_docPrimerThicknessIDTodocpaintthickness")
+}
+
+model docproject {
+  ID                              Int                  @id @default(autoincrement())
+  projectID                       Int
+  isFinishedWeld                  Boolean              @default(false)
+  hasWeldingLog                   Boolean              @default(false)
+  isFinished                      Boolean              @default(false)
+  title                           String
+  createdAt                       DateTime             @default(now())
+  createdBy                       Int
+  updatedAt                       DateTime?
+  updatedBy                       Int?
+  comment                         String?
+  acthiddenwork                   acthiddenwork[]
+  docorder                        docorder[]
+  user_docproject_createdByTouser user                 @relation("docproject_createdByTouser", fields: [createdBy], references: [ID], map: "DocProject_createdBy_fkey")
+  project                         project              @relation(fields: [projectID], references: [ID], map: "DocProject_projectID_fkey")
+  user_docproject_updatedByTouser user?                @relation("docproject_updatedByTouser", fields: [updatedBy], references: [ID], map: "DocProject_updatedBy_fkey")
+  docprojectlayout                docprojectlayout[]
+  subcontractororder              subcontractororder[]
+
+  @@index([createdBy], map: "DocProject_createdBy_fkey")
+  @@index([projectID], map: "DocProject_projectID_fkey")
+  @@index([updatedBy], map: "DocProject_updatedBy_fkey")
+}
+
+model docprojectlayout {
+  ID                                                                         Int                          @id @default(autoincrement())
+  docProjectID                                                               Int
+  layoutCategoryID                                                           Int
+  docNo                                                                      Float
+  docCode                                                                    String
+  docTitle                                                                   String
+  docDeliveryDate                                                            DateTime
+  docComment                                                                 String?
+  docRAL                                                                     String?
+  weldingCode                                                                String?
+  weldingQuantity                                                            Int                          @default(0)
+  docLink                                                                    String?
+  weldingMaterialID                                                          Int?
+  reportDocMKID                                                              Int?
+  reportWeldingID                                                            Int?
+  docPrimerThicknessID                                                       Int?
+  docEnamelThicknessID                                                       Int?
+  isDocParent                                                                Boolean                      @default(false)
+  parentDocID                                                                Int?
+  parentDocCopyQuantity                                                      Int                          @default(0)
+  productQuantity                                                            Int                          @default(1)
+  createdAt                                                                  DateTime                     @default(now())
+  createdBy                                                                  Int
+  updatedAt                                                                  DateTime?
+  updatedBy                                                                  Int?
+  weldControlPercent                                                         Float?                       @default(0)
+  isActive                                                                   Boolean                      @default(true)
+  toRouteTaskDispatcher                                                      Boolean?                     @default(true)
+  copiedFromID                                                               Int?
+  toCopy                                                                     Boolean?                     @default(false)
+  pipeCategoryForWeldControlID                                               Int?
+  docorderlayout                                                             docorderlayout[]
+  user_docprojectlayout_createdByTouser                                      user                         @relation("docprojectlayout_createdByTouser", fields: [createdBy], references: [ID], map: "DocProjectLayout_createdBy_fkey")
+  docpaintthickness_docprojectlayout_docEnamelThicknessIDTodocpaintthickness docpaintthickness?           @relation("docprojectlayout_docEnamelThicknessIDTodocpaintthickness", fields: [docEnamelThicknessID], references: [ID], map: "DocProjectLayout_docEnamelThicknessID_fkey")
+  docpaintthickness_docprojectlayout_docPrimerThicknessIDTodocpaintthickness docpaintthickness?           @relation("docprojectlayout_docPrimerThicknessIDTodocpaintthickness", fields: [docPrimerThicknessID], references: [ID], map: "DocProjectLayout_docPrimerThicknessID_fkey")
+  docproject                                                                 docproject                   @relation(fields: [docProjectID], references: [ID], map: "DocProjectLayout_docProjectID_fkey")
+  layoutcategory                                                             layoutcategory               @relation(fields: [layoutCategoryID], references: [ID], map: "DocProjectLayout_layoutCategoryID_fkey")
+  docprojectlayout                                                           docprojectlayout?            @relation("docprojectlayoutTodocprojectlayout", fields: [parentDocID], references: [ID], map: "DocProjectLayout_parentDocID_fkey")
+  other_docprojectlayout                                                     docprojectlayout[]           @relation("docprojectlayoutTodocprojectlayout")
+  docreport_docprojectlayout_reportDocMKIDTodocreport                        docreport?                   @relation("docprojectlayout_reportDocMKIDTodocreport", fields: [reportDocMKID], references: [ID], map: "DocProjectLayout_reportDocMKID_fkey")
+  docreport_docprojectlayout_reportWeldingIDTodocreport                      docreport?                   @relation("docprojectlayout_reportWeldingIDTodocreport", fields: [reportWeldingID], references: [ID], map: "DocProjectLayout_reportWeldingID_fkey")
+  user_docprojectlayout_updatedByTouser                                      user?                        @relation("docprojectlayout_updatedByTouser", fields: [updatedBy], references: [ID], map: "DocProjectLayout_updatedBy_fkey")
+  weldingmaterial                                                            weldingmaterial?             @relation(fields: [weldingMaterialID], references: [ID], map: "DocProjectLayout_weldingMaterialID_fkey")
+  pipecategoryforweldcontrol                                                 pipecategoryforweldcontrol?  @relation(fields: [pipeCategoryForWeldControlID], references: [ID])
+  docprojectlayoutattachment                                                 docprojectlayoutattachment[]
+  docprojectlayoutchange                                                     docprojectlayoutchange[]
+
+  @@index([createdBy], map: "DocProjectLayout_createdBy_fkey")
+  @@index([docEnamelThicknessID], map: "DocProjectLayout_docEnamelThicknessID_fkey")
+  @@index([docPrimerThicknessID], map: "DocProjectLayout_docPrimerThicknessID_fkey")
+  @@index([docProjectID], map: "DocProjectLayout_docProjectID_fkey")
+  @@index([layoutCategoryID], map: "DocProjectLayout_layoutCategoryID_fkey")
+  @@index([parentDocID], map: "DocProjectLayout_parentDocID_fkey")
+  @@index([reportDocMKID], map: "DocProjectLayout_reportDocMKID_fkey")
+  @@index([reportWeldingID], map: "DocProjectLayout_reportWeldingID_fkey")
+  @@index([updatedBy], map: "DocProjectLayout_updatedBy_fkey")
+  @@index([weldingMaterialID], map: "DocProjectLayout_weldingMaterialID_fkey")
+  @@index([pipeCategoryForWeldControlID], map: "docprojectlayout_pipeCategoryForWeldControlID_fkey")
+}
+
+model docprojectlayoutattachment {
+  ID                                              Int              @id @default(autoincrement())
+  docProjectLayoutID                              Int
+  shortDescription                                String
+  filePath                                        String           @db.VarChar(256)
+  isActive                                        Boolean          @default(true)
+  createdAt                                       DateTime         @default(now())
+  createdBy                                       Int
+  updatedAt                                       DateTime?
+  updatedBy                                       Int?
+  isWeldCard                                      Boolean?         @default(false)
+  user_docprojectlayoutattachment_createdByTouser user             @relation("docprojectlayoutattachment_createdByTouser", fields: [createdBy], references: [ID], map: "DocProjectLayoutAttachment_createdBy_fkey")
+  docprojectlayout                                docprojectlayout @relation(fields: [docProjectLayoutID], references: [ID], map: "DocProjectLayoutAttachment_docProjectLayoutID_fkey")
+  user_docprojectlayoutattachment_updatedByTouser user?            @relation("docprojectlayoutattachment_updatedByTouser", fields: [updatedBy], references: [ID], map: "DocProjectLayoutAttachment_updatedBy_fkey")
+
+  @@index([createdBy], map: "DocProjectLayoutAttachment_createdBy_fkey")
+  @@index([docProjectLayoutID], map: "DocProjectLayoutAttachment_docProjectLayoutID_fkey")
+  @@index([updatedBy], map: "DocProjectLayoutAttachment_updatedBy_fkey")
+}
+
+model docprojectlayoutchange {
+  ID                      Int                   @id @default(autoincrement())
+  docProjectLayoutID      Int
+  changeNo                Int                   @default(1)
+  changeShortDescription  String
+  changeFullDescription   String?               @db.VarChar(400)
+  changeDate              DateTime
+  assemblyLogTaskStatusID Int
+  createdBy               Int
+  createdAt               DateTime              @default(now())
+  docorderlayout          docorderlayout[]
+  assemblylogtaskstatus   assemblylogtaskstatus @relation(fields: [assemblyLogTaskStatusID], references: [ID])
+  user                    user                  @relation(fields: [createdBy], references: [ID])
+  docprojectlayout        docprojectlayout      @relation(fields: [docProjectLayoutID], references: [ID])
+
+  @@unique([docProjectLayoutID, changeNo])
+  @@index([assemblyLogTaskStatusID], map: "docprojectlayoutchange_assemblyLogTaskStatusID_fkey")
+  @@index([createdBy], map: "docprojectlayoutchange_createdBy_fkey")
+}
+
+model docreport {
+  ID                                                           Int                @id @default(autoincrement())
+  title                                                        String
+  shortDescription                                             String?
+  description                                                  String?
+  reportCategory                                               String?
+  isActive                                                     Boolean            @default(true)
+  docprojectlayout_docprojectlayout_reportDocMKIDTodocreport   docprojectlayout[] @relation("docprojectlayout_reportDocMKIDTodocreport")
+  docprojectlayout_docprojectlayout_reportWeldingIDTodocreport docprojectlayout[] @relation("docprojectlayout_reportWeldingIDTodocreport")
+  layoutcategory_layoutcategory_reportMkIDTodocreport          layoutcategory[]   @relation("layoutcategory_reportMkIDTodocreport")
+  layoutcategory_layoutcategory_reportWeldIDTodocreport        layoutcategory[]   @relation("layoutcategory_reportWeldIDTodocreport")
+}
+
+model employeedoc {
+  ID                   Int             @id @default(autoincrement())
+  userID               Int
+  emplDocType          String?
+  emplDocNumber        String?
+  emplDocExpiresBefore String?
+  user                 user            @relation(fields: [userID], references: [ID], map: "EmployeeDoc_userID_fkey")
+  weldingactvik        weldingactvik[]
+
+  @@index([userID], map: "EmployeeDoc_userID_fkey")
+}
+
+model exploitationtask {
+  ID                                         Int                         @id @default(autoincrement())
+  todoTitle                                  String                      @db.VarChar(255)
+  todoDate                                   DateTime?
+  todoUserID                                 Int?
+  todoPlan                                   Float?
+  todoActual                                 Float?
+  todoIsActive                               Boolean?                    @default(true)
+  todoIsFinished                             Boolean?                    @default(false)
+  todoFinishedBy                             Int?
+  todoFinishedAt                             DateTime?
+  createdBy                                  Int
+  createdAt                                  DateTime                    @default(now())
+  todoComment                                String?                     @db.VarChar(255)
+  user_exploitationtask_createdByTouser      user                        @relation("exploitationtask_createdByTouser", fields: [createdBy], references: [ID])
+  user_exploitationtask_todoFinishedByTouser user?                       @relation("exploitationtask_todoFinishedByTouser", fields: [todoFinishedBy], references: [ID])
+  user_exploitationtask_todoUserIDTouser     user?                       @relation("exploitationtask_todoUserIDTouser", fields: [todoUserID], references: [ID])
+  exploitationtask_comment                   exploitationtask_comment[]
+  exploitationtask_executor                  exploitationtask_executor[]
+
+  @@index([createdBy], map: "exploitationtask_createdBy_fkey")
+  @@index([todoFinishedBy], map: "exploitationtask_todoFinishedBy_fkey")
+  @@index([todoUserID], map: "exploitationtask_todoUserID_fkey")
+}
+
+model exploitationtask_comment {
+  ID                 Int              @id @default(autoincrement())
+  exploitationTaskID Int
+  comment            String
+  isDeleted          Boolean          @default(false)
+  createdBy          Int
+  createdAt          DateTime         @default(now())
+  user               user             @relation(fields: [createdBy], references: [ID])
+  exploitationtask   exploitationtask @relation(fields: [exploitationTaskID], references: [ID])
+
+  @@index([createdBy], map: "exploitationtask_comment_createdBy_fkey")
+  @@index([exploitationTaskID], map: "exploitationtask_comment_exploitationTaskID_fkey")
+}
+
+model exploitationtask_executor {
+  ID                 Int              @id @default(autoincrement())
+  exploitationTaskID Int
+  executorID         Int
+  user               user             @relation(fields: [executorID], references: [ID])
+  exploitationtask   exploitationtask @relation(fields: [exploitationTaskID], references: [ID])
+
+  @@index([executorID], map: "exploitationtask_executor_executorID_fkey")
+  @@index([exploitationTaskID], map: "exploitationtask_executor_exploitationTaskID_fkey")
+}
+
+model layoutcategory {
+  ID                                               Int                @id @default(autoincrement())
+  title                                            String
+  isActive                                         Boolean            @default(false)
+  isPipes                                          Boolean            @default(false)
+  reportMkID                                       Int?
+  reportWeldID                                     Int?
+  docprojectlayout                                 docprojectlayout[]
+  docreport_layoutcategory_reportMkIDTodocreport   docreport?         @relation("layoutcategory_reportMkIDTodocreport", fields: [reportMkID], references: [ID], map: "LayoutCategory_reportMkID_fkey")
+  docreport_layoutcategory_reportWeldIDTodocreport docreport?         @relation("layoutcategory_reportWeldIDTodocreport", fields: [reportWeldID], references: [ID], map: "LayoutCategory_reportWeldID_fkey")
+
+  @@index([reportMkID], map: "LayoutCategory_reportMkID_fkey")
+  @@index([reportWeldID], map: "LayoutCategory_reportWeldID_fkey")
+}
+
+model pipecategoryforweldcontrol {
+  ID                     Int                @id @default(autoincrement())
+  categoryTitle          String
+  categoryDescription    String
+  categoryIsDeleted      Boolean            @default(false)
+  categoryPercentControl Float
+  docprojectlayout       docprojectlayout[]
+}
+
+model project {
+  ID                           Int                      @id @default(autoincrement())
+  title                        String                   @unique(map: "Project_title_key")
+  msProjectUID                 Int
+  address                      String?
+  isInternal                   Boolean                  @default(false)
+  isActive                     Boolean                  @default(false)
+  isFinished                   Boolean                  @default(false)
+  erpNo                        String?
+  planShipmentDate             DateTime?
+  readyForShipment             DateTime?
+  actualShipmentDate           DateTime?
+  msProjectStartDate           DateTime
+  msProjectFileFullPath        String
+  managerID                    Int?
+  createdAt                    DateTime                 @default(now())
+  createdBy                    Int
+  updatedAt                    DateTime?
+  updatedBy                    Int?
+  toProduction                 Boolean?                 @default(false)
+  docproject                   docproject[]
+  user_project_createdByTouser user                     @relation("project_createdByTouser", fields: [createdBy], references: [ID], map: "Project_createdBy_fkey")
+  user_project_managerIDTouser user?                    @relation("project_managerIDTouser", fields: [managerID], references: [ID], map: "Project_managerID_fkey")
+  user_project_updatedByTouser user?                    @relation("project_updatedByTouser", fields: [updatedBy], references: [ID], map: "Project_updatedBy_fkey")
+  projectcalendar              projectcalendar[]
+  projecttask                  projecttask[]
+  projecttaskpredecessor       projecttaskpredecessor[]
+  subcontractororder           subcontractororder[]
+  workshoporder                workshoporder[]
+
+  @@index([createdBy], map: "Project_createdBy_fkey")
+  @@index([managerID], map: "Project_managerID_fkey")
+  @@index([updatedBy], map: "Project_updatedBy_fkey")
+}
+
+model projectcalendar {
+  ID        Int      @id @default(autoincrement())
+  projectID Int?
+  title     String
+  duration  Int
+  start     DateTime
+  finish    DateTime
+  isHoliday Boolean  @default(true)
+  isWorking Boolean  @default(false)
+  createdAt DateTime @default(now())
+  createdBy Int
+  user      user     @relation(fields: [createdBy], references: [ID])
+  project   project? @relation(fields: [projectID], references: [ID], onDelete: Restrict)
+
+  @@index([createdBy], map: "projectcalendar_createdBy_fkey")
+  @@index([projectID], map: "projectcalendar_projectID_fkey")
+}
+
+model projecttask {
+  ID                                                          Int                      @id @default(autoincrement())
+  projectID                                                   Int
+  workshopOrderID                                             Int?
+  parentID                                                    Int?
+  msProjectTaskUID                                            Int
+  msProjectTaskID                                             Int
+  title                                                       String
+  duration                                                    Float
+  start                                                       DateTime
+  finish                                                      DateTime
+  constraintDate                                              DateTime?
+  work                                                        Float
+  percentComplete                                             Float?
+  wbs                                                         String
+  level                                                       Int
+  isActive                                                    Boolean
+  isDeleted                                                   Boolean                  @default(false)
+  createdAt                                                   DateTime                 @default(now())
+  createdBy                                                   Int
+  updatedAt                                                   DateTime?
+  updatedBy                                                   Int?
+  isSummary                                                   Boolean                  @default(false)
+  sort                                                        Int                      @default(0)
+  taskWorkTypeID                                              Int?
+  taskWorkSiteID                                              Int?
+  parentTaskIDLvl1                                            Int?
+  parentTaskIDLvl2                                            Int?
+  parentTaskIDLvl3                                            Int?
+  parentTaskIDLvl4                                            Int?
+  parentTaskIDLvl5                                            Int?
+  parentTaskIDLvl6                                            Int?
+  parentTaskIDLvl7                                            Int?
+  writeHoursByDocOrderLayoutTaskID                            Boolean?                 @default(false)
+  isClosedForPTO                                              Boolean?                 @default(false)
+  actualFinish                                                DateTime?
+  lateFinish                                                  DateTime?
+  lateStart                                                   DateTime?
+  isCritical                                                  Boolean?                 @default(false)
+  percentComplete2                                            Int?                     @default(0)
+  projectIter                                                 Int?                     @default(0)
+  webScheduleIter                                             Int?                     @default(0)
+  assemblylog                                                 assemblylog[]
+  assemblyloglikeaccess                                       assemblyloglikeaccess[]
+  docorderlayouttask                                          docorderlayouttask[]
+  user_projecttask_createdByTouser                            user                     @relation("projecttask_createdByTouser", fields: [createdBy], references: [ID], map: "ProjectTask_createdBy_fkey")
+  projecttask_projecttask_parentIDToprojecttask               projecttask?             @relation("projecttask_parentIDToprojecttask", fields: [parentID], references: [ID], map: "ProjectTask_parentID_fkey")
+  other_projecttask_projecttask_parentIDToprojecttask         projecttask[]            @relation("projecttask_parentIDToprojecttask")
+  project                                                     project                  @relation(fields: [projectID], references: [ID], map: "ProjectTask_projectID_fkey")
+  user_projecttask_updatedByTouser                            user?                    @relation("projecttask_updatedByTouser", fields: [updatedBy], references: [ID], map: "ProjectTask_updatedBy_fkey")
+  workshoporder                                               workshoporder?           @relation(fields: [workshopOrderID], references: [ID], map: "ProjectTask_workshopOrderID_fkey")
+  projecttask_projecttask_parentTaskIDLvl1Toprojecttask       projecttask?             @relation("projecttask_parentTaskIDLvl1Toprojecttask", fields: [parentTaskIDLvl1], references: [ID])
+  other_projecttask_projecttask_parentTaskIDLvl1Toprojecttask projecttask[]            @relation("projecttask_parentTaskIDLvl1Toprojecttask")
+  projecttask_projecttask_parentTaskIDLvl2Toprojecttask       projecttask?             @relation("projecttask_parentTaskIDLvl2Toprojecttask", fields: [parentTaskIDLvl2], references: [ID])
+  other_projecttask_projecttask_parentTaskIDLvl2Toprojecttask projecttask[]            @relation("projecttask_parentTaskIDLvl2Toprojecttask")
+  projecttask_projecttask_parentTaskIDLvl3Toprojecttask       projecttask?             @relation("projecttask_parentTaskIDLvl3Toprojecttask", fields: [parentTaskIDLvl3], references: [ID])
+  other_projecttask_projecttask_parentTaskIDLvl3Toprojecttask projecttask[]            @relation("projecttask_parentTaskIDLvl3Toprojecttask")
+  projecttask_projecttask_parentTaskIDLvl4Toprojecttask       projecttask?             @relation("projecttask_parentTaskIDLvl4Toprojecttask", fields: [parentTaskIDLvl4], references: [ID])
+  other_projecttask_projecttask_parentTaskIDLvl4Toprojecttask projecttask[]            @relation("projecttask_parentTaskIDLvl4Toprojecttask")
+  projecttask_projecttask_parentTaskIDLvl5Toprojecttask       projecttask?             @relation("projecttask_parentTaskIDLvl5Toprojecttask", fields: [parentTaskIDLvl5], references: [ID])
+  other_projecttask_projecttask_parentTaskIDLvl5Toprojecttask projecttask[]            @relation("projecttask_parentTaskIDLvl5Toprojecttask")
+  projecttask_projecttask_parentTaskIDLvl6Toprojecttask       projecttask?             @relation("projecttask_parentTaskIDLvl6Toprojecttask", fields: [parentTaskIDLvl6], references: [ID])
+  other_projecttask_projecttask_parentTaskIDLvl6Toprojecttask projecttask[]            @relation("projecttask_parentTaskIDLvl6Toprojecttask")
+  projecttask_projecttask_parentTaskIDLvl7Toprojecttask       projecttask?             @relation("projecttask_parentTaskIDLvl7Toprojecttask", fields: [parentTaskIDLvl7], references: [ID])
+  other_projecttask_projecttask_parentTaskIDLvl7Toprojecttask projecttask[]            @relation("projecttask_parentTaskIDLvl7Toprojecttask")
+  taskworksite                                                taskworksite?            @relation(fields: [taskWorkSiteID], references: [ID])
+  taskworktype                                                taskworktype?            @relation(fields: [taskWorkTypeID], references: [ID])
+  projecttaskpredecessor                                      projecttaskpredecessor[]
+  projecttsv                                                  projecttsv[]
+  taskpercentcomplete                                         taskpercentcomplete[]
+  weekschedule_v1                                             weekschedule_v1[]
+
+  @@index([createdBy], map: "ProjectTask_createdBy_fkey")
+  @@index([parentID], map: "ProjectTask_parentID_fkey")
+  @@index([projectID], map: "ProjectTask_projectID_fkey")
+  @@index([updatedBy], map: "ProjectTask_updatedBy_fkey")
+  @@index([workshopOrderID], map: "ProjectTask_workshopOrderID_fkey")
+  @@index([parentTaskIDLvl1], map: "projecttask_parentTaskIDLvl1_fkey")
+  @@index([parentTaskIDLvl2], map: "projecttask_parentTaskIDLvl2_fkey")
+  @@index([parentTaskIDLvl3], map: "projecttask_parentTaskIDLvl3_fkey")
+  @@index([parentTaskIDLvl4], map: "projecttask_parentTaskIDLvl4_fkey")
+  @@index([parentTaskIDLvl5], map: "projecttask_parentTaskIDLvl5_fkey")
+  @@index([parentTaskIDLvl6], map: "projecttask_parentTaskIDLvl6_fkey")
+  @@index([parentTaskIDLvl7], map: "projecttask_parentTaskIDLvl7_fkey")
+  @@index([taskWorkSiteID], map: "projecttask_taskWorkSiteID_fkey")
+  @@index([taskWorkTypeID], map: "projecttask_taskWorkTypeID_fkey")
+}
+
+model projecttaskpredecessor {
+  ID              Int            @id @default(autoincrement())
+  workshoporderID Int?
+  projecttaskID   Int
+  predecessor     String?
+  dateConstraint  DateTime?
+  projectID       Int
+  createdAt       DateTime?      @default(now())
+  createdBy       Int?
+  deviation       Int?           @default(0)
+  predTaskNo      Int?
+  predTaskType    Int?
+  user            user?          @relation(fields: [createdBy], references: [ID])
+  project         project        @relation(fields: [projectID], references: [ID])
+  projecttask     projecttask    @relation(fields: [projecttaskID], references: [ID])
+  workshoporder   workshoporder? @relation(fields: [workshoporderID], references: [ID])
+
+  @@index([createdBy], map: "projecttaskpredecessor_createdBy_fkey")
+  @@index([projectID], map: "projecttaskpredecessor_projectID_fkey")
+  @@index([projecttaskID], map: "projecttaskpredecessor_projecttaskID_fkey")
+  @@index([workshoporderID], map: "projecttaskpredecessor_workshoporderID_fkey")
+}
+
+model projecttaskpredecessortype {
+  ID        Int      @id @default(autoincrement())
+  type      String
+  comment   String?
+  createdBy Int
+  createdAt DateTime @default(now())
+  user      user     @relation(fields: [createdBy], references: [ID])
+
+  @@index([createdBy], map: "projecttaskpredecessortype_createdBy_fkey")
+}
+
+model projecttsv {
+  ID            Int         @id @default(autoincrement())
+  projecttaskID Int
+  tsvDate       DateTime
+  tsvWork       Float
+  tsvSpeciality String?
+  projecttask   projecttask @relation(fields: [projecttaskID], references: [ID])
+
+  @@index([projecttaskID], map: "projecttsv_projecttaskID_fkey")
+}
+
+model role {
+  ID               Int        @id @default(autoincrement())
+  title            String     @unique(map: "Role_title_key")
+  isActive         Boolean    @default(true)
+  description      String?
+  onlyForSuperUser Boolean    @default(false)
+  userrole         userrole[]
+}
+
+model routetaskclaim {
+  ID                                        Int                              @id @default(autoincrement())
+  docOrderLayoutTaskID                      Int
+  approvedBy                                Int?
+  agreedBy                                  Int?
+  familiarBy                                Int?
+  quantity                                  Int?                             @default(0)
+  identifiedDefects                         String?
+  responsibleBy                             Int?
+  controlledBy                              Int?
+  valuesInLayout                            String?
+  actualValues                              String?
+  conclutionPTO                             String?
+  conclutionPTOBy                           Int?
+  conclutionPTOAt                           DateTime?
+  reasonForMismatch                         String?
+  headOfOtcBy                               Int?
+  headOfOtcAt                               DateTime?
+  isClosed                                  Boolean?                         @default(false)
+  createdBy                                 Int
+  createdAt                                 DateTime                         @default(now())
+  isDeleted                                 Boolean?                         @default(false)
+  deletedBy                                 Int?
+  deletedAt                                 DateTime?
+  filePath                                  String?                          @db.VarChar(255)
+  user_routetaskclaim_agreedByTouser        user?                            @relation("routetaskclaim_agreedByTouser", fields: [agreedBy], references: [ID])
+  user_routetaskclaim_approvedByTouser      user?                            @relation("routetaskclaim_approvedByTouser", fields: [approvedBy], references: [ID])
+  user_routetaskclaim_conclutionPTOByTouser user?                            @relation("routetaskclaim_conclutionPTOByTouser", fields: [conclutionPTOBy], references: [ID])
+  user_routetaskclaim_controlledByTouser    user?                            @relation("routetaskclaim_controlledByTouser", fields: [controlledBy], references: [ID])
+  user_routetaskclaim_createdByTouser       user                             @relation("routetaskclaim_createdByTouser", fields: [createdBy], references: [ID])
+  user_routetaskclaim_deletedByTouser       user?                            @relation("routetaskclaim_deletedByTouser", fields: [deletedBy], references: [ID])
+  docorderlayouttask                        docorderlayouttask               @relation(fields: [docOrderLayoutTaskID], references: [ID])
+  user_routetaskclaim_familiarByTouser      user?                            @relation("routetaskclaim_familiarByTouser", fields: [familiarBy], references: [ID])
+  user_routetaskclaim_headOfOtcByTouser     user?                            @relation("routetaskclaim_headOfOtcByTouser", fields: [headOfOtcBy], references: [ID])
+  user_routetaskclaim_responsibleByTouser   user?                            @relation("routetaskclaim_responsibleByTouser", fields: [responsibleBy], references: [ID])
+  routetaskclaim_mismatchcreator            routetaskclaim_mismatchcreator[]
+
+  @@index([agreedBy], map: "routetaskclaim_agreedBy_fkey")
+  @@index([approvedBy], map: "routetaskclaim_approvedBy_fkey")
+  @@index([conclutionPTOBy], map: "routetaskclaim_conclutionPTOBy_fkey")
+  @@index([controlledBy], map: "routetaskclaim_controlledBy_fkey")
+  @@index([createdBy], map: "routetaskclaim_createdBy_fkey")
+  @@index([deletedBy], map: "routetaskclaim_deletedBy_fkey")
+  @@index([docOrderLayoutTaskID], map: "routetaskclaim_docOrderLayoutTaskID_fkey")
+  @@index([familiarBy], map: "routetaskclaim_familiarBy_fkey")
+  @@index([headOfOtcBy], map: "routetaskclaim_headOfOtcBy_fkey")
+  @@index([responsibleBy], map: "routetaskclaim_responsibleBy_fkey")
+}
+
+model routetaskclaim_mismatchcreator {
+  ID               Int             @id @default(autoincrement())
+  routeTaskClaimID Int?
+  userID           Int?
+  routetaskclaim   routetaskclaim? @relation(fields: [routeTaskClaimID], references: [ID])
+  user             user?           @relation(fields: [userID], references: [ID])
+
+  @@index([routeTaskClaimID], map: "routetaskclaim_mismatchcreator_routeTaskClaimID_fkey")
+  @@index([userID], map: "routetaskclaim_mismatchcreator_userID_fkey")
+}
+
+model session {
+  ID                Int       @id @default(autoincrement())
+  sessionID         String
+  sessionStarted    DateTime  @default(now())
+  sessionFinished   DateTime?
+  sessionIsFinished Boolean   @default(false)
+  userID            Int
+  user              user      @relation(fields: [userID], references: [ID], map: "Session_userID_fkey")
+
+  @@index([userID], map: "Session_userID_fkey")
+}
+
+model sessionmsaccess {
+  ID                 Int              @id @default(autoincrement())
+  sessionStarted     DateTime         @default(now())
+  sessionFinished    DateTime?
+  sessionIsFinished  Boolean          @default(false)
+  userAuthMSAccessID Int
+  userauthmsaccess   userauthmsaccess @relation(fields: [userAuthMSAccessID], references: [ID], map: "SessionMSAccess_userAuthMSAccessID_fkey")
+
+  @@index([userAuthMSAccessID], map: "SessionMSAccess_userAuthMSAccessID_fkey")
+}
+
+model subcontractor {
+  ID                                 Int                  @id @default(autoincrement())
+  title                              String
+  createdBy                          Int
+  createdAt                          DateTime             @default(now())
+  deletedBy                          Int?
+  deletedAt                          DateTime?
+  isDeleted                          Boolean              @default(false)
+  user_subcontractor_createdByTouser user                 @relation("subcontractor_createdByTouser", fields: [createdBy], references: [ID])
+  user_subcontractor_deletedByTouser user?                @relation("subcontractor_deletedByTouser", fields: [deletedBy], references: [ID])
+  subcontractororder                 subcontractororder[]
+
+  @@index([createdBy], map: "subcontractor_createdBy_fkey")
+  @@index([deletedBy], map: "subcontractor_deletedBy_fkey")
+}
+
+model subcontractordetail {
+  ID                                       Int                @id @default(autoincrement())
+  subContractorOrderID                     Int
+  detailTitle                              String
+  detailSize                               String?
+  detailQuantity                           Int?
+  createdBy                                Int
+  createdAt                                DateTime           @default(now())
+  deletedBy                                Int?
+  deletedAt                                DateTime?
+  isDeleted                                Boolean            @default(false)
+  user_subcontractordetail_createdByTouser user               @relation("subcontractordetail_createdByTouser", fields: [createdBy], references: [ID])
+  user_subcontractordetail_deletedByTouser user?              @relation("subcontractordetail_deletedByTouser", fields: [deletedBy], references: [ID])
+  subcontractororder                       subcontractororder @relation(fields: [subContractorOrderID], references: [ID])
+
+  @@index([createdBy], map: "subcontractordetail_createdBy_fkey")
+  @@index([deletedBy], map: "subcontractordetail_deletedBy_fkey")
+  @@index([subContractorOrderID], map: "subcontractordetail_subContractorOrderID_fkey")
+}
+
+model subcontractororder {
+  ID                                               Int                      @id @default(autoincrement())
+  projectID                                        Int
+  orderNo                                          String                   @unique
+  orderTitle                                       String
+  orderCost                                        Float?
+  orderNoInErp                                     Int?
+  createdBy                                        Int
+  createdAt                                        DateTime                 @default(now())
+  isActive                                         Boolean                  @default(false)
+  deletedBy                                        Int?
+  deletedAt                                        DateTime?
+  isDeleted                                        Boolean                  @default(false)
+  subContractorID                                  Int?
+  isInvoiceRequested                               Boolean                  @default(false)
+  controlledBy                                     Int?
+  controlledAt                                     DateTime?
+  controlState                                     String?
+  isControlled                                     Boolean                  @default(false)
+  invoiceRequestedAt                               DateTime?
+  invoiceRequestedBy                               Int?
+  isOnWarehouse                                    Boolean?                 @default(false)
+  onWarehouseAt                                    DateTime?
+  onWarehouseBy                                    Int?
+  isOwnRawMaterial                                 Boolean?                 @default(false)
+  isRawMaterialSent                                Boolean?                 @default(false)
+  rawMaterialSentAt                                DateTime?
+  rawMaterialSentBy                                Int?
+  activeAt                                         DateTime?
+  activeBy                                         Int?
+  conmment                                         String?
+  docProjectID                                     Int?
+  docorderlayoutmaterial                           docorderlayoutmaterial[]
+  subcontractordetail                              subcontractordetail[]
+  user_subcontractororder_activeByTouser           user?                    @relation("subcontractororder_activeByTouser", fields: [activeBy], references: [ID])
+  user_subcontractororder_controlledByTouser       user?                    @relation("subcontractororder_controlledByTouser", fields: [controlledBy], references: [ID])
+  user_subcontractororder_createdByTouser          user                     @relation("subcontractororder_createdByTouser", fields: [createdBy], references: [ID])
+  user_subcontractororder_deletedByTouser          user?                    @relation("subcontractororder_deletedByTouser", fields: [deletedBy], references: [ID])
+  docproject                                       docproject?              @relation(fields: [docProjectID], references: [ID])
+  user_subcontractororder_invoiceRequestedByTouser user?                    @relation("subcontractororder_invoiceRequestedByTouser", fields: [invoiceRequestedBy], references: [ID])
+  user_subcontractororder_onWarehouseByTouser      user?                    @relation("subcontractororder_onWarehouseByTouser", fields: [onWarehouseBy], references: [ID])
+  project                                          project                  @relation(fields: [projectID], references: [ID])
+  user_subcontractororder_rawMaterialSentByTouser  user?                    @relation("subcontractororder_rawMaterialSentByTouser", fields: [rawMaterialSentBy], references: [ID])
+  subcontractor                                    subcontractor?           @relation(fields: [subContractorID], references: [ID])
+
+  @@index([activeBy], map: "subcontractororder_activeBy_fkey")
+  @@index([controlledBy], map: "subcontractororder_controlledBy_fkey")
+  @@index([createdBy], map: "subcontractororder_createdBy_fkey")
+  @@index([deletedBy], map: "subcontractororder_deletedBy_fkey")
+  @@index([docProjectID], map: "subcontractororder_docProjectID_fkey")
+  @@index([invoiceRequestedBy], map: "subcontractororder_invoiceRequestedBy_fkey")
+  @@index([onWarehouseBy], map: "subcontractororder_onWarehouseBy_fkey")
+  @@index([projectID], map: "subcontractororder_projectID_fkey")
+  @@index([rawMaterialSentBy], map: "subcontractororder_rawMaterialSentBy_fkey")
+  @@index([subContractorID], map: "subcontractororder_subContractorID_fkey")
+}
+
+model taskpercentcomplete {
+  ID              Int         @id @default(autoincrement())
+  projectTaskID   Int
+  percentComplete Float
+  createdAt       DateTime    @default(now())
+  createdBy       Int
+  user            user        @relation(fields: [createdBy], references: [ID], map: "TaskPercentComplete_createdBy_fkey")
+  projecttask     projecttask @relation(fields: [projectTaskID], references: [ID], map: "TaskPercentComplete_projectTaskID_fkey")
+
+  @@index([createdBy], map: "TaskPercentComplete_createdBy_fkey")
+  @@index([projectTaskID], map: "TaskPercentComplete_projectTaskID_fkey")
+}
+
+model taskworksite {
+  ID                      Int           @id @default(autoincrement())
+  title                   String        @unique
+  description             String?
+  isActive                Boolean?      @default(true)
+  toRoutesTasksDispatcher Boolean?      @default(true)
+  titleToReport           String?
+  projecttask             projecttask[]
+  userrole                userrole[]
+}
+
+model taskworktype {
+  ID                    Int                     @id @default(autoincrement())
+  title                 String                  @unique
+  descriprion           String?
+  isActive              Boolean?                @default(true)
+  assemblyloglikeaccess assemblyloglikeaccess[]
+  projecttask           projecttask[]
+}
+
+model user {
+  ID                                                                              Int                              @id @default(autoincrement())
+  firstName                                                                       String
+  lastName                                                                        String
+  thirdName                                                                       String
+  userSpecialityID                                                                Int?
+  hasVIK                                                                          Boolean                          @default(false)
+  isPTO                                                                           Boolean                          @default(false)
+  isProjectManager                                                                Boolean                          @default(false)
+  isActive                                                                        Boolean                          @default(true)
+  enableAuth                                                                      Boolean                          @default(false)
+  isSuperUser                                                                     Boolean                          @default(false)
+  welderBrand                                                                     String?
+  welderToLogID                                                                   Int?
+  vikLicenceExpDate                                                               DateTime?
+  isWeld                                                                          Boolean                          @default(false)
+  toAssemblylog                                                                   Boolean                          @default(true)
+  userCompanyID                                                                   Int?
+  toWeekSchedule                                                                  Boolean                          @default(false)
+  toExploitationTaskExecutor                                                      Boolean                          @default(false)
+  acthiddenworkdelegate                                                           acthiddenworkdelegate[]
+  assemblylog_assemblylog_createdByTouser                                         assemblylog[]                    @relation("assemblylog_createdByTouser")
+  assemblylog_assemblylog_updatedByTouser                                         assemblylog[]                    @relation("assemblylog_updatedByTouser")
+  assemblylog_assemblylog_userIDTouser                                            assemblylog[]                    @relation("assemblylog_userIDTouser")
+  assemblylogcalendar                                                             assemblylogcalendar[]
+  assemblyloglikeaccess_assemblyloglikeaccess_odbcCreatedByTouser                 assemblyloglikeaccess[]          @relation("assemblyloglikeaccess_odbcCreatedByTouser")
+  assemblyloglikeaccess_assemblyloglikeaccess_odbcEmployeeIDTouser                assemblyloglikeaccess[]          @relation("assemblyloglikeaccess_odbcEmployeeIDTouser")
+  docorder_docorder_createdByTouser                                               docorder[]                       @relation("docorder_createdByTouser")
+  docorder_docorder_updatedByTouser                                               docorder[]                       @relation("docorder_updatedByTouser")
+  docorder_docorder_controllerVikIDTouser                                         docorder[]                       @relation("docorder_controllerVikIDTouser")
+  docorderlayout_docorderlayout_createdByTouser                                   docorderlayout[]                 @relation("docorderlayout_createdByTouser")
+  docorderlayout_docorderlayout_ptdUserIDTouser                                   docorderlayout[]                 @relation("docorderlayout_ptdUserIDTouser")
+  docorderlayout_docorderlayout_updatedByTouser                                   docorderlayout[]                 @relation("docorderlayout_updatedByTouser")
+  docorderlayoutmaterial_docorderlayoutmaterial_createdByTouser                   docorderlayoutmaterial[]         @relation("docorderlayoutmaterial_createdByTouser")
+  docorderlayoutmaterial_docorderlayoutmaterial_updatedByTouser                   docorderlayoutmaterial[]         @relation("docorderlayoutmaterial_updatedByTouser")
+  docorderlayoutmaterial_docorderlayoutmaterial_confirmIssueForProductionByTouser docorderlayoutmaterial[]         @relation("docorderlayoutmaterial_confirmIssueForProductionByTouser")
+  docorderlayoutmaterial_docorderlayoutmaterial_issuedForProductionByTouser       docorderlayoutmaterial[]         @relation("docorderlayoutmaterial_issuedForProductionByTouser")
+  docorderlayouttask_docorderlayouttask_createdByTouser                           docorderlayouttask[]             @relation("docorderlayouttask_createdByTouser")
+  docorderlayouttask_docorderlayouttask_updatedByTouser                           docorderlayouttask[]             @relation("docorderlayouttask_updatedByTouser")
+  docorderlayouttask_docorderlayouttask_appointByTouser                           docorderlayouttask[]             @relation("docorderlayouttask_appointByTouser")
+  docorderlayouttask_docorderlayouttask_appointForTouser                          docorderlayouttask[]             @relation("docorderlayouttask_appointForTouser")
+  docorderlayouttask_docorderlayouttask_finishedByTouser                          docorderlayouttask[]             @relation("docorderlayouttask_finishedByTouser")
+  docorderlayouttask_docorderlayouttask_finishedPartlyByTouser                    docorderlayouttask[]             @relation("docorderlayouttask_finishedPartlyByTouser")
+  docorderlayouttaskdetail_docorderlayouttaskdetail_appointByTouser               docorderlayouttaskdetail[]       @relation("docorderlayouttaskdetail_appointByTouser")
+  docorderlayouttaskdetail_docorderlayouttaskdetail_createdByTouser               docorderlayouttaskdetail[]       @relation("docorderlayouttaskdetail_createdByTouser")
+  docorderlayouttaskdetail_docorderlayouttaskdetail_finishedByTouser              docorderlayouttaskdetail[]       @relation("docorderlayouttaskdetail_finishedByTouser")
+  docorderlayouttaskdetail_docorderlayouttaskdetail_finishedForEmployeeTouser     docorderlayouttaskdetail[]       @relation("docorderlayouttaskdetail_finishedForEmployeeTouser")
+  docorderlayouttaskdetail_docorderlayouttaskdetail_whoFinishedTaskTouser         docorderlayouttaskdetail[]       @relation("docorderlayouttaskdetail_whoFinishedTaskTouser")
+  docorderwelder_docorderwelder_welderIDTouser                                    docorderwelder[]                 @relation("docorderwelder_welderIDTouser")
+  docorderwelder_docorderwelder_welderToLogIDTouser                               docorderwelder[]                 @relation("docorderwelder_welderToLogIDTouser")
+  docproject_docproject_createdByTouser                                           docproject[]                     @relation("docproject_createdByTouser")
+  docproject_docproject_updatedByTouser                                           docproject[]                     @relation("docproject_updatedByTouser")
+  docprojectlayout_docprojectlayout_createdByTouser                               docprojectlayout[]               @relation("docprojectlayout_createdByTouser")
+  docprojectlayout_docprojectlayout_updatedByTouser                               docprojectlayout[]               @relation("docprojectlayout_updatedByTouser")
+  docprojectlayoutattachment_docprojectlayoutattachment_createdByTouser           docprojectlayoutattachment[]     @relation("docprojectlayoutattachment_createdByTouser")
+  docprojectlayoutattachment_docprojectlayoutattachment_updatedByTouser           docprojectlayoutattachment[]     @relation("docprojectlayoutattachment_updatedByTouser")
+  docprojectlayoutchange                                                          docprojectlayoutchange[]
+  employeedoc                                                                     employeedoc[]
+  exploitationtask_exploitationtask_createdByTouser                               exploitationtask[]               @relation("exploitationtask_createdByTouser")
+  exploitationtask_exploitationtask_todoFinishedByTouser                          exploitationtask[]               @relation("exploitationtask_todoFinishedByTouser")
+  exploitationtask_exploitationtask_todoUserIDTouser                              exploitationtask[]               @relation("exploitationtask_todoUserIDTouser")
+  exploitationtask_comment                                                        exploitationtask_comment[]
+  exploitationtask_executor                                                       exploitationtask_executor[]
+  project_project_createdByTouser                                                 project[]                        @relation("project_createdByTouser")
+  project_project_managerIDTouser                                                 project[]                        @relation("project_managerIDTouser")
+  project_project_updatedByTouser                                                 project[]                        @relation("project_updatedByTouser")
+  projectcalendar                                                                 projectcalendar[]
+  projecttask_projecttask_createdByTouser                                         projecttask[]                    @relation("projecttask_createdByTouser")
+  projecttask_projecttask_updatedByTouser                                         projecttask[]                    @relation("projecttask_updatedByTouser")
+  projecttaskpredecessor                                                          projecttaskpredecessor[]
+  projecttaskpredecessortype                                                      projecttaskpredecessortype[]
+  routetaskclaim_routetaskclaim_agreedByTouser                                    routetaskclaim[]                 @relation("routetaskclaim_agreedByTouser")
+  routetaskclaim_routetaskclaim_approvedByTouser                                  routetaskclaim[]                 @relation("routetaskclaim_approvedByTouser")
+  routetaskclaim_routetaskclaim_conclutionPTOByTouser                             routetaskclaim[]                 @relation("routetaskclaim_conclutionPTOByTouser")
+  routetaskclaim_routetaskclaim_controlledByTouser                                routetaskclaim[]                 @relation("routetaskclaim_controlledByTouser")
+  routetaskclaim_routetaskclaim_createdByTouser                                   routetaskclaim[]                 @relation("routetaskclaim_createdByTouser")
+  routetaskclaim_routetaskclaim_deletedByTouser                                   routetaskclaim[]                 @relation("routetaskclaim_deletedByTouser")
+  routetaskclaim_routetaskclaim_familiarByTouser                                  routetaskclaim[]                 @relation("routetaskclaim_familiarByTouser")
+  routetaskclaim_routetaskclaim_headOfOtcByTouser                                 routetaskclaim[]                 @relation("routetaskclaim_headOfOtcByTouser")
+  routetaskclaim_routetaskclaim_responsibleByTouser                               routetaskclaim[]                 @relation("routetaskclaim_responsibleByTouser")
+  routetaskclaim_mismatchcreator                                                  routetaskclaim_mismatchcreator[]
+  session                                                                         session[]
+  subcontractor_subcontractor_createdByTouser                                     subcontractor[]                  @relation("subcontractor_createdByTouser")
+  subcontractor_subcontractor_deletedByTouser                                     subcontractor[]                  @relation("subcontractor_deletedByTouser")
+  subcontractordetail_subcontractordetail_createdByTouser                         subcontractordetail[]            @relation("subcontractordetail_createdByTouser")
+  subcontractordetail_subcontractordetail_deletedByTouser                         subcontractordetail[]            @relation("subcontractordetail_deletedByTouser")
+  subcontractororder_subcontractororder_activeByTouser                            subcontractororder[]             @relation("subcontractororder_activeByTouser")
+  subcontractororder_subcontractororder_controlledByTouser                        subcontractororder[]             @relation("subcontractororder_controlledByTouser")
+  subcontractororder_subcontractororder_createdByTouser                           subcontractororder[]             @relation("subcontractororder_createdByTouser")
+  subcontractororder_subcontractororder_deletedByTouser                           subcontractororder[]             @relation("subcontractororder_deletedByTouser")
+  subcontractororder_subcontractororder_invoiceRequestedByTouser                  subcontractororder[]             @relation("subcontractororder_invoiceRequestedByTouser")
+  subcontractororder_subcontractororder_onWarehouseByTouser                       subcontractororder[]             @relation("subcontractororder_onWarehouseByTouser")
+  subcontractororder_subcontractororder_rawMaterialSentByTouser                   subcontractororder[]             @relation("subcontractororder_rawMaterialSentByTouser")
+  taskpercentcomplete                                                             taskpercentcomplete[]
+  userspeciality                                                                  userspeciality?                  @relation(fields: [userSpecialityID], references: [ID], map: "User_userSpecialityID_fkey")
+  user                                                                            user?                            @relation("userTouser", fields: [welderToLogID], references: [ID], map: "User_welderToLogID_fkey")
+  other_user                                                                      user[]                           @relation("userTouser")
+  company                                                                         company?                         @relation(fields: [userCompanyID], references: [ID])
+  userauth                                                                        userauth?
+  userauthmsaccess                                                                userauthmsaccess[]
+  userrole                                                                        userrole[]
+  weekschedule_v1_weekschedule_v1_createdByTouser                                 weekschedule_v1[]                @relation("weekschedule_v1_createdByTouser")
+  weekschedule_v1_weekschedule_v1_userIDTouser                                    weekschedule_v1[]                @relation("weekschedule_v1_userIDTouser")
+  weld_weld_createdByTouser                                                       weld[]                           @relation("weld_createdByTouser")
+  weld_weld_updatedByTouser                                                       weld[]                           @relation("weld_updatedByTouser")
+  weld_weld_deletedByTouser                                                       weld[]                           @relation("weld_deletedByTouser")
+  weld_weld_welderToLogIDTouser                                                   weld[]                           @relation("weld_welderToLogIDTouser")
+  weldcontroltype                                                                 weldcontroltype[]
+  welddetail_welddetail_deletedByTouser                                           welddetail[]                     @relation("welddetail_deletedByTouser")
+  welddetail_welddetail_welderIDTouser                                            welddetail[]                     @relation("welddetail_welderIDTouser")
+  welddetail_welddetail_welderToLogIDTouser                                       welddetail[]                     @relation("welddetail_welderToLogIDTouser")
+  weldforrkstatus_weldforrkstatus_createdByTouser                                 weldforrkstatus[]                @relation("weldforrkstatus_createdByTouser")
+  weldforrkstatus_weldforrkstatus_deletedByTouser                                 weldforrkstatus[]                @relation("weldforrkstatus_deletedByTouser")
+  weldingactvik_weldingactvik_actVikUserIDTouser                                  weldingactvik[]                  @relation("weldingactvik_actVikUserIDTouser")
+  weldingactvik_weldingactvik_createdByTouser                                     weldingactvik[]                  @relation("weldingactvik_createdByTouser")
+  weldingactvik_weldingactvik_updatedByTouser                                     weldingactvik[]                  @relation("weldingactvik_updatedByTouser")
+  weldradiocontrolmain                                                            weldradiocontrolmain[]
+  workshoporder_workshoporder_createdByTouser                                     workshoporder[]                  @relation("workshoporder_createdByTouser")
+  workshoporder_workshoporder_managerIDTouser                                     workshoporder[]                  @relation("workshoporder_managerIDTouser")
+  workshoporder_workshoporder_updatedByTouser                                     workshoporder[]                  @relation("workshoporder_updatedByTouser")
+
+  @@index([userSpecialityID], map: "User_userSpecialityID_fkey")
+  @@index([welderToLogID], map: "User_welderToLogID_fkey")
+  @@index([userCompanyID], map: "user_userCompanyID_fkey")
+}
+
+model userauth {
+  userID         Int     @unique(map: "UserAuth_userID_key")
+  id             String  @id
+  login          String  @unique
+  password       String
+  hashedPassword String?
+  user           user    @relation(fields: [userID], references: [ID], map: "UserAuth_userID_fkey")
+}
+
+model userauthmsaccess {
+  ID                   Int               @id @default(autoincrement())
+  userID               Int
+  userName             String
+  computerName         String
+  createdAt            DateTime
+  userMSAccessPassword String?
+  sessionmsaccess      sessionmsaccess[]
+  user                 user              @relation(fields: [userID], references: [ID], map: "UserAuthMSAccess_userID_fkey")
+
+  @@unique([userID, userName, computerName], map: "UserAuthMSAccess_userID_userName_computerName_key")
+}
+
+model userrole {
+  ID           Int           @id @default(autoincrement())
+  userID       Int
+  roleID       Int
+  isActive     Boolean       @default(true)
+  siteID       Int?
+  comment      String?
+  role         role          @relation(fields: [roleID], references: [ID], map: "UserRole_roleID_fkey")
+  user         user          @relation(fields: [userID], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "UserRole_userID_fkey")
+  taskworksite taskworksite? @relation(fields: [siteID], references: [ID])
+
+  @@unique([userID, roleID, siteID], map: "UserRole_userID_roleID_siteID_fkey")
+  @@index([roleID], map: "UserRole_roleID_fkey")
+  @@index([userID], map: "UserRole_userID_fkey_idx")
+  @@index([siteID], map: "userrole_siteID_fkey")
+}
+
+model userspeciality {
+  ID    Int    @id @default(autoincrement())
+  title String
+  user  user[]
+}
+
+model weekschedule_v1 {
+  ID                                   Int                 @id @default(autoincrement())
+  userID                               Int
+  dateWork                             DateTime
+  docOrderLayoutTaskID                 Int?
+  projectTaskID                        Int
+  hour                                 Float
+  comment                              String?
+  createdBy                            Int
+  createdAt                            DateTime            @default(now())
+  transactionNo                        Int
+  user_weekschedule_v1_createdByTouser user                @relation("weekschedule_v1_createdByTouser", fields: [createdBy], references: [ID])
+  docorderlayouttask                   docorderlayouttask? @relation(fields: [docOrderLayoutTaskID], references: [ID])
+  projecttask                          projecttask         @relation(fields: [projectTaskID], references: [ID])
+  user_weekschedule_v1_userIDTouser    user                @relation("weekschedule_v1_userIDTouser", fields: [userID], references: [ID])
+
+  @@index([createdBy], map: "weekschedule_v1_createdBy_fkey")
+  @@index([docOrderLayoutTaskID], map: "weekschedule_v1_docOrderLayoutTaskID_fkey")
+  @@index([projectTaskID], map: "weekschedule_v1_projectTaskID_fkey")
+  @@index([userID], map: "weekschedule_v1_userID_fkey")
+}
+
+model weld {
+  ID                                                                 Int                     @id @default(autoincrement())
+  docOrderLayoutID                                                   Int
+  weldCode                                                           String
+  weldNo                                                             Int
+  createdAt                                                          DateTime                @default(now())
+  createdBy                                                          Int
+  updatedAt                                                          DateTime?
+  updatedBy                                                          Int?
+  firstDetailID                                                      Int?
+  secondDetailID                                                     Int?
+  tempChoose                                                         Boolean?                @default(false)
+  weldControl                                                        Boolean?                @default(false)
+  weldingGostTypeID                                                  Int?
+  weldingMaterialID                                                  Int?
+  weldActRkID                                                        Int?
+  weldActVikID                                                       Int?
+  weldDiameterID                                                     Int?
+  welderToLogID                                                      Int?
+  toWeldRadioControl                                                 Boolean?                @default(false)
+  isGood                                                             Boolean?                @default(false)
+  isGoodText                                                         String?
+  weldRC1                                                            Boolean?                @default(false)
+  weldRC2                                                            Boolean?                @default(false)
+  weldRC3                                                            Boolean?                @default(false)
+  weldRC4                                                            Boolean?                @default(false)
+  weldRC5                                                            Boolean?                @default(false)
+  weldRadioControlStageID                                            Int?
+  imagePath                                                          String?
+  needImage                                                          Boolean?                @default(false)
+  isActive                                                           Boolean?                @default(true)
+  deletedAt                                                          DateTime?
+  deletedBy                                                          Int?
+  weldDiameterText                                                   String?
+  weldSteelText                                                      String?
+  weldControlTypeID                                                  Int?
+  user_weld_createdByTouser                                          user                    @relation("weld_createdByTouser", fields: [createdBy], references: [ID], map: "Weld_createdBy_fkey")
+  docorderlayout                                                     docorderlayout          @relation(fields: [docOrderLayoutID], references: [ID], map: "Weld_docOrderLayoutID_fkey")
+  user_weld_updatedByTouser                                          user?                   @relation("weld_updatedByTouser", fields: [updatedBy], references: [ID], map: "Weld_updatedBy_fkey")
+  user_weld_deletedByTouser                                          user?                   @relation("weld_deletedByTouser", fields: [deletedBy], references: [ID])
+  docorderlayoutmaterial_weld_firstDetailIDTodocorderlayoutmaterial  docorderlayoutmaterial? @relation("weld_firstDetailIDTodocorderlayoutmaterial", fields: [firstDetailID], references: [ID])
+  docorderlayoutmaterial_weld_secondDetailIDTodocorderlayoutmaterial docorderlayoutmaterial? @relation("weld_secondDetailIDTodocorderlayoutmaterial", fields: [secondDetailID], references: [ID])
+  weldingactrk                                                       weldingactrk?           @relation(fields: [weldActRkID], references: [ID])
+  weldingactvik                                                      weldingactvik?          @relation(fields: [weldActVikID], references: [ID])
+  weldcontroltype                                                    weldcontroltype?        @relation(fields: [weldControlTypeID], references: [ID], onDelete: Restrict)
+  welddiameter                                                       welddiameter?           @relation(fields: [weldDiameterID], references: [ID])
+  weldradiocontrolstady                                              weldradiocontrolstady?  @relation(fields: [weldRadioControlStageID], references: [ID])
+  user_weld_welderToLogIDTouser                                      user?                   @relation("weld_welderToLogIDTouser", fields: [welderToLogID], references: [ID])
+  weldinggosttype                                                    weldinggosttype?        @relation(fields: [weldingGostTypeID], references: [ID])
+  weldingmaterial                                                    weldingmaterial?        @relation(fields: [weldingMaterialID], references: [ID])
+  welddetail                                                         welddetail[]
+  weldforrkstatus                                                    weldforrkstatus[]
+  weldradiocontrolmain_weldradiocontrolmain_sourceWeldIDToweld       weldradiocontrolmain[]  @relation("weldradiocontrolmain_sourceWeldIDToweld")
+  weldradiocontrolmain_weldradiocontrolmain_weldIDToweld             weldradiocontrolmain[]  @relation("weldradiocontrolmain_weldIDToweld")
+
+  @@index([createdBy], map: "Weld_createdBy_fkey")
+  @@index([docOrderLayoutID], map: "Weld_docOrderLayoutID_fkey")
+  @@index([updatedBy], map: "Weld_updatedBy_fkey")
+  @@index([deletedBy], map: "weld_deletedBy_fkey")
+  @@index([firstDetailID], map: "weld_firstDetailID_fkey")
+  @@index([secondDetailID], map: "weld_secondDetailID_fkey")
+  @@index([weldActRkID], map: "weld_weldActRkID_fkey")
+  @@index([weldActVikID], map: "weld_weldActVikID_fkey")
+  @@index([weldControlTypeID], map: "weld_weldControlTypeID_fkey")
+  @@index([weldDiameterID], map: "weld_weldDiameterID_fkey")
+  @@index([weldRadioControlStageID], map: "weld_weldRadioControlStageID_fkey")
+  @@index([welderToLogID], map: "weld_welderToLogID_fkey")
+  @@index([weldingGostTypeID], map: "weld_weldingGostTypeID_fkey")
+  @@index([weldingMaterialID], map: "weld_weldingMaterialID_fkey")
+}
+
+model weldcontroltype {
+  ID               Int            @id @default(autoincrement())
+  title            String
+  description      String?
+  isActive         Boolean?       @default(true)
+  isDefault        Boolean?       @default(false)
+  isNonDestructive Boolean?       @default(true)
+  createdBy        Int
+  createdAt        DateTime       @default(now())
+  weld             weld[]
+  user             user           @relation(fields: [createdBy], references: [ID])
+  weldingactrk     weldingactrk[]
+
+  @@index([createdBy], map: "weldcontroltype_createdBy_fkey")
+}
+
+model welddescription {
+  ID         Int          @id @default(autoincrement())
+  title      String
+  isActive   Boolean      @default(true)
+  welddetail welddetail[]
+}
+
+model welddetail {
+  ID                                  Int             @id @default(autoincrement())
+  welderID                            Int
+  weldConnectionID                    Int
+  weldDescriptionID                   Int
+  weldTypeID                          Int
+  weldDate                            DateTime
+  welderToLogID                       Int?
+  createdAt                           DateTime?       @default(now())
+  createdBy                           Int?            @default(10)
+  updatedAt                           DateTime?
+  updatedBy                           Int?
+  isActive                            Boolean         @default(true)
+  deletedAt                           DateTime?
+  deletedBy                           Int?
+  user_welddetail_deletedByTouser     user?           @relation("welddetail_deletedByTouser", fields: [deletedBy], references: [ID])
+  weld                                weld            @relation(fields: [weldConnectionID], references: [ID])
+  welddescription                     welddescription @relation(fields: [weldDescriptionID], references: [ID])
+  weldingtype                         weldingtype     @relation(fields: [weldTypeID], references: [ID])
+  user_welddetail_welderIDTouser      user            @relation("welddetail_welderIDTouser", fields: [welderID], references: [ID])
+  user_welddetail_welderToLogIDTouser user?           @relation("welddetail_welderToLogIDTouser", fields: [welderToLogID], references: [ID])
+
+  @@index([deletedBy], map: "welddetail_deletedBy_fkey")
+  @@index([weldConnectionID], map: "welddetail_weldConnectionID_fkey")
+  @@index([weldDescriptionID], map: "welddetail_weldDescriptionID_fkey")
+  @@index([weldTypeID], map: "welddetail_weldTypeID_fkey")
+  @@index([welderID], map: "welddetail_welderID_fkey")
+  @@index([welderToLogID], map: "welddetail_welderToLogID_fkey")
+}
+
+model welddiameter {
+  ID                            Int    @id @default(autoincrement())
+  dn                            Int    @unique
+  numberOfExposuresForRkControl Int    @default(0)
+  weld                          weld[]
+}
+
+model weldforrkstatus {
+  ID                                   Int       @id @default(autoincrement())
+  weldID                               Int
+  isGood                               Boolean?  @default(false)
+  controlTypeText                      String
+  isDeleted                            Boolean?  @default(false)
+  deletedBy                            Int?
+  deletedAt                            DateTime?
+  createdBy                            Int
+  createdAt                            DateTime
+  user_weldforrkstatus_createdByTouser user      @relation("weldforrkstatus_createdByTouser", fields: [createdBy], references: [ID])
+  user_weldforrkstatus_deletedByTouser user?     @relation("weldforrkstatus_deletedByTouser", fields: [deletedBy], references: [ID])
+  weld                                 weld      @relation(fields: [weldID], references: [ID])
+
+  @@index([createdBy], map: "weldforrkstatus_createdBy_fkey")
+  @@index([deletedBy], map: "weldforrkstatus_deletedBy_fkey")
+  @@index([weldID], map: "weldforrkstatus_weldID_fkey")
+}
+
+model weldingactrk {
+  ID                Int              @id @default(autoincrement())
+  docOrderID        Int
+  actRkNumber       String
+  actRkDateCreated  DateTime
+  weldControlTypeID Int?
+  weld              weld[]
+  docorder          docorder         @relation(fields: [docOrderID], references: [ID])
+  weldcontroltype   weldcontroltype? @relation(fields: [weldControlTypeID], references: [ID], onDelete: Restrict)
+
+  @@index([docOrderID], map: "weldingactrk_docOrderID_fkey")
+  @@index([weldControlTypeID], map: "weldingactrk_weldControlTypeID_fkey")
+}
+
+model weldingactvik {
+  ID                                    Int              @id @default(autoincrement())
+  docOrderID                            Int
+  actVikDate                            DateTime?
+  actVikType                            String           @default("ВИК")
+  actVikControl                         String?          @db.VarChar(400)
+  actVikGOST                            String?          @db.VarChar(400)
+  actVikConnections                     String?          @db.VarChar(400)
+  actVikUserID                          Int?
+  createdAt                             DateTime?        @default(now())
+  createdBy                             Int?
+  updatedAt                             DateTime?
+  updatedBy                             Int?
+  employeeDocID                         Int?
+  actVikNo                              String?
+  docorderlayout                        docorderlayout[]
+  weld                                  weld[]
+  user_weldingactvik_actVikUserIDTouser user?            @relation("weldingactvik_actVikUserIDTouser", fields: [actVikUserID], references: [ID], map: "WeldingActVIK_actVikUserID_fkey")
+  user_weldingactvik_createdByTouser    user?            @relation("weldingactvik_createdByTouser", fields: [createdBy], references: [ID], map: "WeldingActVIK_createdBy_fkey")
+  docorder                              docorder         @relation(fields: [docOrderID], references: [ID], map: "WeldingActVIK_docOrderID_fkey")
+  user_weldingactvik_updatedByTouser    user?            @relation("weldingactvik_updatedByTouser", fields: [updatedBy], references: [ID], map: "WeldingActVIK_updatedBy_fkey")
+  employeedoc                           employeedoc?     @relation(fields: [employeeDocID], references: [ID])
+
+  @@index([actVikUserID], map: "WeldingActVIK_actVikUserID_fkey")
+  @@index([createdBy], map: "WeldingActVIK_createdBy_fkey")
+  @@index([docOrderID], map: "WeldingActVIK_docOrderID_fkey")
+  @@index([updatedBy], map: "WeldingActVIK_updatedBy_fkey")
+  @@index([employeeDocID], map: "weldingactvik_employeeDocID_fkey")
+}
+
+model weldinggosttype {
+  ID                 Int     @id @default(autoincrement())
+  title              String
+  GOST               String?
+  description        String?
+  toWeldRadioControl Boolean @default(false)
+  weld               weld[]
+}
+
+model weldingmaterial {
+  ID                  Int                @id @default(autoincrement())
+  title               String
+  materialCertificate String?            @db.VarChar(256)
+  isActive            Boolean            @default(true)
+  docorderlayout      docorderlayout[]
+  docprojectlayout    docprojectlayout[]
+  weld                weld[]
+}
+
+model weldingtype {
+  ID          Int          @id @default(autoincrement())
+  title       String
+  material    String?
+  Sort        Int?
+  Sertificate String?
+  welddetail  welddetail[]
+}
+
+model weldradiocontrolmain {
+  ID                                           Int                   @id @default(autoincrement())
+  weldID                                       Int
+  weldradiocontrolstageID                      Int
+  createdAt                                    DateTime              @default(now())
+  createdBy                                    Int
+  isGood                                       Boolean               @default(false)
+  sourceWeldID                                 Int?
+  isGoodText                                   String?
+  user                                         user                  @relation(fields: [createdBy], references: [ID])
+  weld_weldradiocontrolmain_sourceWeldIDToweld weld?                 @relation("weldradiocontrolmain_sourceWeldIDToweld", fields: [sourceWeldID], references: [ID])
+  weld_weldradiocontrolmain_weldIDToweld       weld                  @relation("weldradiocontrolmain_weldIDToweld", fields: [weldID], references: [ID])
+  weldradiocontrolstady                        weldradiocontrolstady @relation(fields: [weldradiocontrolstageID], references: [ID])
+
+  @@index([createdBy], map: "weldradiocontrolmain_createdBy_fkey")
+  @@index([sourceWeldID], map: "weldradiocontrolmain_sourceWeldID_fkey")
+  @@index([weldID], map: "weldradiocontrolmain_weldID_fkey")
+  @@index([weldradiocontrolstageID], map: "weldradiocontrolmain_weldradiocontrolstageID_fkey")
+}
+
+model weldradiocontrolstady {
+  ID                   Int                    @id @default(autoincrement())
+  title                String                 @unique
+  default              Boolean                @default(false)
+  weld                 weld[]
+  weldradiocontrolmain weldradiocontrolmain[]
+}
+
+model workshoporder {
+  ID                                 Int                      @id @default(autoincrement())
+  orderNo                            Int?
+  title                              String                   @unique(map: "WorkshopOrder_title_key")
+  msProjectOrderID                   Int
+  msProjectOrderUID                  Int
+  erpNo                              String?
+  isActive                           Boolean                  @default(false)
+  isFinished                         Boolean                  @default(false)
+  isDeleted                          Boolean                  @default(false)
+  planShipmentDate                   DateTime?
+  readyForShipment                   DateTime?
+  actualShipmentDate                 DateTime?
+  projectID                          Int
+  managerID                          Int?
+  createdAt                          DateTime                 @default(now())
+  createdBy                          Int
+  updatedAt                          DateTime?
+  updatedBy                          Int?
+  contractNumber                     String?
+  toProduction                       Boolean?                 @default(false)
+  titleToReport                      String?
+  toRouteTaskDispatcher              Boolean?                 @default(false)
+  docorder                           docorder?
+  projecttask                        projecttask[]
+  projecttaskpredecessor             projecttaskpredecessor[]
+  user_workshoporder_createdByTouser user                     @relation("workshoporder_createdByTouser", fields: [createdBy], references: [ID], map: "WorkshopOrder_createdBy_fkey")
+  user_workshoporder_managerIDTouser user?                    @relation("workshoporder_managerIDTouser", fields: [managerID], references: [ID], map: "WorkshopOrder_managerID_fkey")
+  project                            project                  @relation(fields: [projectID], references: [ID], map: "WorkshopOrder_projectID_fkey")
+  user_workshoporder_updatedByTouser user?                    @relation("workshoporder_updatedByTouser", fields: [updatedBy], references: [ID], map: "WorkshopOrder_updatedBy_fkey")
+
+  @@index([createdBy], map: "WorkshopOrder_createdBy_fkey")
+  @@index([managerID], map: "WorkshopOrder_managerID_fkey")
+  @@index([projectID], map: "WorkshopOrder_projectID_fkey")
+  @@index([updatedBy], map: "WorkshopOrder_updatedBy_fkey")
+}

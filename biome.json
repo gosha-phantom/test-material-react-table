@@ -12,7 +12,7 @@
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
-    "indentWidth": 2
+    "indentWidth": 4
   },
   "linter": {
     "enabled": true,
@@ -20,6 +20,9 @@
       "recommended": true,
       "suspicious": {
         "noUnknownAtRules": "off"
+      },
+      "a11y": {
+        "useSemanticElements": "warn"
       }
     },
     "domains": {
@@ -30,7 +33,7 @@
   "assist": {
     "actions": {
       "source": {
-        "organizeImports": "on"
+        "organizeImports": "off"
       }
     }
   }
